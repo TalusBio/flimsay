@@ -27,6 +27,6 @@ cd flimsy/train
 dvc repro
 ```
 
-Running this should automatically trian the models
-and update the metrics.
+Running this should automatically download the data,
+trian the models, calculate and update the metrics.
 

@@ -27,7 +27,8 @@ stages:
     plots:
       - plots/one_over_k0_model_feature_importance.png
       - plots/one_over_k0_model_ims_error_cumulative.png
-      - plots/one_over_k0_model_ims_pred_vs_true.png
+      - plots/one_over_k0_model_ims_pred_vs_true.png:
+          cache: false
       - plots/one_over_k0_model_ims_error.png
       - plots/one_over_k0_model_ims_error_hist.png
     metrics:
@@ -47,7 +48,8 @@ stages:
       - plots/ccs_error.png
       - plots/ccs_feature_importance.png
       - plots/ccs_mz_vs_error.png
-      - plots/ccs_predicted_vs_real.png
+      - plots/ccs_predicted_vs_real.png:
+          cache: false
     metrics:
       - plots/ccs_model_metrics.toml:
           cache: false
