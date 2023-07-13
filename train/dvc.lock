@@ -1,0 +1,106 @@
+schema: '2.0'
+stages:
+  get_data:
+    cmd:
+    - mkdir -p data
+    - wget 
+      https://github.com/theislab/DeepCollisionalCrossSection/blob/master/data/combined_sm.csv.tar.gz\?raw\=true
+      -O ccs_data.csv.tar.gz
+    - tar -xzf ccs_data.csv.tar.gz
+    - mv combined_sm.csv ./data/ccs_data.csv
+    outs:
+    - path: data/ccs_data.csv
+      hash: md5
+      md5: 85eadec26a4f8021efe027228e131164
+      size: 59926681
+  get_pride_data:
+    cmd:
+    - mkdir -p data
+    - wget -c 
+      ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2022/08/PXD034640/IM-GPF_library.tsv
+    - mv IM-GPF_library.tsv ./data/.
+    - wget -c ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2022/08/PXD034640/Deep_Library.tsv
+    - mv Deep_Library.tsv ./data/.
+    outs:
+    - path: data/Deep_Library.tsv
+      hash: md5
+      md5: ad3752a62402d7f0e8debe8311fcba10
+      size: 2967497400
+    - path: data/IM-GPF_library.tsv
+      hash: md5
+      md5: a593e1ed05169d06204bb4fe2614c0a6
+      size: 313154814
+  train_ook0_model:
+    cmd:
+    - python scripts/train_1ok0.py
+    deps:
+    - path: data/Deep_Library.tsv
+      hash: md5
+      md5: ad3752a62402d7f0e8debe8311fcba10
+      size: 2967497400
+    outs:
+    - path: plots/one_over_k0_model_feature_importance.png
+      hash: md5
+      md5: 84e095d522934fba29da6e67dd849e7b
+      size: 27297
+    - path: plots/one_over_k0_model_ims_error.png
+      hash: md5
+      md5: aaa33ca55e22a5c01e90936e59b440b8
+      size: 189011
+    - path: plots/one_over_k0_model_ims_error_cumulative.png
+      hash: md5
+      md5: 6f34aa8d9393e41fa210981dd2290837
+      size: 42549
+    - path: plots/one_over_k0_model_ims_error_hist.png
+      hash: md5
+      md5: ebd268e72203a3f0b09a51a2b57a19fe
+      size: 29421
+    - path: plots/one_over_k0_model_ims_pred_vs_true.png
+      hash: md5
+      md5: 35e16f4b28084637ba005d6708cb0ade
+      size: 92533
+    - path: plots/one_over_k0_model_metrics.toml
+      hash: md5
+      md5: c212ba8c3073936aee64fe6a7a33c7d6
+      size: 65
+    - path: weights/one_over_k0_model.txt
+      hash: md5
+      md5: 95e110021158c1b8459ae1c6f38598dc
+      size: 1389963
+  train_ccs_model:
+    cmd:
+    - python scripts/train_ccs.py
+    deps:
+    - path: data/ccs_data.csv
+      hash: md5
+      md5: 85eadec26a4f8021efe027228e131164
+      size: 59926681
+    outs:
+    - path: plots/ccs_cumulative_error.png
+      hash: md5
+      md5: f616189353cb177876ee52a1b810b7fd
+      size: 40172
+    - path: plots/ccs_error.png
+      hash: md5
+      md5: 1544acb6d6c458e87250e60b3924beae
+      size: 17648
+    - path: plots/ccs_feature_importance.png
+      hash: md5
+      md5: 1e1a7521009d8ba0e5d3a0d87ae5935b
+      size: 27269
+    - path: plots/ccs_model_metrics.toml
+      hash: md5
+      md5: c73c2f565ee99094ec9802f4d3d8537a
+      size: 59
+    - path: plots/ccs_mz_vs_error.png
+      hash: md5
+      md5: 02304b59a2a865c651fbc3c8abb87508
+      size: 116176
+    - path: plots/ccs_predicted_vs_real.png
+      hash: md5
+      md5: 58b35f84e36e59509c5fb6ca4f42eb12
+      size: 74664
+    - path: weights/ccs_model.txt
+      hash: md5
+      md5: f249a4e1cdd19b1f4edc7a881c2202f1
+      size: 662458

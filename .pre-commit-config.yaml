@@ -1,0 +1,41 @@
+repos:
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: check-yaml
+    exclude: "mkdocs.yml"
+  - id: end-of-file-fixer
+    exclude: ".*.svg"
+  - id: trailing-whitespace
+  - id: check-toml
+  - id: end-of-file-fixer
+  - id: detect-private-key
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: v0.0.277
+  hooks:
+    - id: ruff
+- repo: https://github.com/psf/black
+  rev: 23.3.0
+  hooks:
+    - id: black
+      language_version: python3.9
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+    - id: isort
+      name: isort (python)
+- repo: local
+  hooks:
+  - id: pytest
+    name: pytest-check
+    entry: poetry run python -m pytest -x
+    language: system
+    pass_filenames: false
+    always_run: true
+      #   - id: build_docs
+      #     name: build_docs
+      #     entry: poetry run python -m mkdocs build --strict
+      #     language: system
+      #     pass_filenames: false
+      #     always_run: true

@@ -1,0 +1,56 @@
+stages:
+  get_pride_data:
+    cmd:
+      - mkdir -p data
+      - wget -c ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2022/08/PXD034640/IM-GPF_library.tsv
+      - mv IM-GPF_library.tsv ./data/.
+      - wget -c ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2022/08/PXD034640/Deep_Library.tsv
+      - mv Deep_Library.tsv ./data/.
+    outs:
+      - data/IM-GPF_library.tsv
+      - data/Deep_Library.tsv
+
+  get_data:
+    cmd:
+      - mkdir -p data
+      - wget https://github.com/theislab/DeepCollisionalCrossSection/blob/master/data/combined_sm.csv.tar.gz\?raw\=true -O ccs_data.csv.tar.gz
+      - tar -xzf ccs_data.csv.tar.gz
+      - mv combined_sm.csv ./data/ccs_data.csv
+    outs:
+      - data/ccs_data.csv
+
+  train_ook0_model:
+    cmd:
+      - python scripts/train_1ok0.py
+    deps:
+      - data/Deep_Library.tsv
+    plots:
+      - plots/one_over_k0_model_feature_importance.png
+      - plots/one_over_k0_model_ims_error_cumulative.png
+      - plots/one_over_k0_model_ims_pred_vs_true.png
+      - plots/one_over_k0_model_ims_error.png
+      - plots/one_over_k0_model_ims_error_hist.png
+    metrics:
+      - plots/one_over_k0_model_metrics.toml:
+          cache: false
+    outs:
+      - weights/one_over_k0_model.txt:
+          cache: false
+
+  train_ccs_model:
+    cmd:
+      - python scripts/train_ccs.py
+    deps:
+      - data/ccs_data.csv
+    plots:
+      - plots/ccs_cumulative_error.png
+      - plots/ccs_error.png
+      - plots/ccs_feature_importance.png
+      - plots/ccs_mz_vs_error.png
+      - plots/ccs_predicted_vs_real.png
+    metrics:
+      - plots/ccs_model_metrics.toml:
+          cache: false
+    outs:
+      - weights/ccs_model.txt:
+          cache: false
