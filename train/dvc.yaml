@@ -25,12 +25,16 @@ stages:
     deps:
       - data/Deep_Library.tsv
     plots:
-      - plots/one_over_k0_model_feature_importance.png
-      - plots/one_over_k0_model_ims_error_cumulative.png
+      - plots/one_over_k0_model_feature_importance.png:
+          cache: false
+      - plots/one_over_k0_model_ims_error_cumulative.png:
+          cache: false
       - plots/one_over_k0_model_ims_pred_vs_true.png:
           cache: false
-      - plots/one_over_k0_model_ims_error.png
-      - plots/one_over_k0_model_ims_error_hist.png
+      - plots/one_over_k0_model_ims_error.png:
+          cache: false
+      - plots/one_over_k0_model_ims_error_hist.png:
+          cache: false
     metrics:
       - plots/one_over_k0_model_metrics.toml:
           cache: false
@@ -44,10 +48,14 @@ stages:
     deps:
       - data/ccs_data.csv
     plots:
-      - plots/ccs_cumulative_error.png
-      - plots/ccs_error.png
-      - plots/ccs_feature_importance.png
-      - plots/ccs_mz_vs_error.png
+      - plots/ccs_cumulative_error.png:
+          cache: false
+      - plots/ccs_error.png:
+          cache: false
+      - plots/ccs_feature_importance.png:
+          cache: false
+      - plots/ccs_mz_vs_error.png:
+          cache: false
       - plots/ccs_predicted_vs_real.png:
           cache: false
     metrics:
