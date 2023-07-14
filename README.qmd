@@ -1,0 +1,100 @@
+
+---
+title: "Flimsy: Fun/Fast Simple IMS Anyone like You can use."
+author: "Sebastian Paez"
+format: 
+  gfm
+---
+
+
+This repository implements a very simple LGBM model
+to predict ion mobility from peptides.
+
+
+## Usage
+
+There are two main ways to interact with `flimsay`, one is using python and the other one is using the python api directly.
+
+### CLI
+
+```shell
+$ pip install flimsay
+```
+
+```shell
+$ flimsay fill_blib mylibrary.blib # This will add ion mobility data to a .blib file.
+```
+
+```{shell}
+$ flimsay fill_blib --help
+```
+
+### Python
+
+#### Single peptide
+
+```{python}
+from flimsay.model import FlimsayModel
+
+model_instance = FlimsayModel()
+model_instance.predict_peptide("MYPEPTIDEK", charge=2)
+```
+
+#### Many peptides at once
+
+```{python}
+import pandas as pd
+from flimsay.features import add_features, FEATURE_COLUMNS
+
+df = pd.DataFrame({"Stripped_Seqs": ["LESLIEK", "LESLIE", "LESLKIE"]})
+df["PrecursorCharge"] = 2
+df = add_features(df, stripped_sequence_name="Stripped_Seqs", calc_masses=True)
+df
+```
+
+```{python}
+model_instance.predict(df[FEATURE_COLUMNS])
+```
+
+## Performance
+
+![](train/plots/one_over_k0_model_ims_pred_vs_true.png)
+
+![](train/plots/ccs_predicted_vs_real.png)
+
+## Motivation
+
+There is a fair amount of data on CCS and ion mobility of peptides
+but only very few models actually use features that are directly
+interpretable.
+
+In addition, having a simpler model allows faster predictions
+in systems that are not equiped with GPUs.
+
+Therefore, this project aims to create a freely available, easy to use, interpretable and fast model to predict ion mobility and collisional cross-section for peptides.
+
+## Features
+
+The features used for prediction are meant to be
+simple and their implementation can be found here:
+[flimsy/features.py](flimsy/features.py)
+
+```{python}
+from flimsay.features import FEATURE_COLUMN_DESCRIPTIONS
+for k,v in FEATURE_COLUMN_DESCRIPTIONS.items():
+    print(f">>> The Feature '{k}' is defined as: \n\t{v}")
+```
+
+## Training 
+
+Currently the training logic is handled using DVC (https://dvc.org).
+
+```shell
+git clone {this repo}
+cd flimsy/train
+dvc repro
+```
+
+Running this should automatically download the data,
+trian the models, calculate and update the metrics.
+

@@ -1,15 +1,15 @@
 from pathlib import Path
 
 import lightgbm as lgb
-from lightgbm.callback import log_evaluation
 import numpy as np
 import pandas as pd
 import vizta
+from lightgbm.callback import log_evaluation
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 
-from flimsy.data import select_split
-from flimsy.features import FEATURE_COLUMNS, add_features, df_to_split_datasets
+from flimsay.data import select_split
+from flimsay.features import FEATURE_COLUMNS, add_features, df_to_split_datasets
 
 WEIGHTS_LOCATION = Path(__file__).parent / "../weights"
 PLOTS_LOCATION = Path(__file__).parent / "../plots"
@@ -34,7 +34,9 @@ peplib["PrecursorMz"] = (peplib["Mass"] + (peplib["Charge"] * 1.007276)) / pepli
 
 peplib = add_features(peplib)
 train_data, validation_data, test_data = df_to_split_datasets(
-    peplib, "CCS", "PeptideSequence",
+    peplib,
+    "CCS",
+    "PeptideSequence",
 )
 peplib["split"] = peplib["PeptideSequence"].apply(select_split)
 
@@ -46,10 +48,16 @@ param = {
     "num_leaves": 21,
     "early_stopping_rounds": 20,
     "learning_rate": 0.1,
-    'pred_early_stop_margin':0.1,
+    "pred_early_stop_margin": 0.1,
 }
 
-bst = lgb.train(param, train_set=train_data, num_boost_round=num_round, valid_sets=[validation_data], callbacks=[log_evaluation(period=20)])
+bst = lgb.train(
+    param,
+    train_set=train_data,
+    num_boost_round=num_round,
+    valid_sets=[validation_data],
+    callbacks=[log_evaluation(period=20)],
+)
 
 bst.save_model(model_location, num_iteration=bst.best_iteration)
 validation_data = peplib[peplib["split"] == "Val"].copy()

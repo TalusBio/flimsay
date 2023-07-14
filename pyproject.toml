@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "flimsy"
+name = "flimsay"
 authors = [
     {name = "Sebastian Paez", email = "spaez@talus.bio"},
 ]
@@ -27,15 +27,15 @@ dependencies = [
 dynamic = ["version"]
 
 # [project.scripts]
-# ssfims = "flimsy.cli:main_cli"
+# flimsay = "flimsay.cli:main_cli"
 
 [project.readme]
 file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
-Homepage = "https://github.com/TalusBio/flimsy"
-Documentation = "https://TalusBio.github.io/flimsy"
+Homepage = "https://github.com/TalusBio/flimsay"
+Documentation = "https://TalusBio.github.io/flimsay"
 
 [project.optional-dependencies]
 test = [
@@ -52,10 +52,11 @@ dev = [
     "black >= 23.1.0",
     "isort >=  5.12.0",
     "pylance >= 0.3.9",
+    "jupyter >= 1.0.0",
 ]
 
 [tool.setuptools.packages.find]
-include = ["flimsy"]
+include = ["flimsay"]
 
 [tool.setuptools.package-data]
 mypkg = ["*.txt"]
@@ -65,7 +66,7 @@ minversion = "6.0"
 addopts = "--doctest-modules -v"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 testpaths = [
-    "flimsy",
+    "flimsay",
     "tests",
 ]
 

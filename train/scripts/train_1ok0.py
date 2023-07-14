@@ -2,15 +2,15 @@ import re
 from pathlib import Path
 
 import lightgbm as lgb
-from lightgbm.callback import log_evaluation
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import vizta
+from lightgbm.callback import log_evaluation
 from loguru import logger
 from matplotlib import rcParams
 
-from flimsy.features import (
+from flimsay.features import (
     FEATURE_COLUMNS,
     add_features,
     df_to_split_datasets,
@@ -123,7 +123,13 @@ param = {
     "learning_rate": 0.05,
 }
 
-bst = lgb.train(param, train_dataset, num_round, valid_sets=[val_dataset], callbacks=[log_evaluation(period=20)])
+bst = lgb.train(
+    param,
+    train_dataset,
+    num_round,
+    valid_sets=[val_dataset],
+    callbacks=[log_evaluation(period=20)],
+)
 bst.save_model(model_location, num_iteration=bst.best_iteration)
 
 lgb.plot_importance(bst, figsize=(6, 3))
