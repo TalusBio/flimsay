@@ -91,7 +91,7 @@ Currently the training logic is handled using DVC (https://dvc.org).
 
 ```shell
 git clone {this repo}
-cd flimsy/train
+cd flimsay/train
 dvc repro
 ```
 

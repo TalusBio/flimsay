@@ -51,5 +51,8 @@ def calc_mass(sequence) -> float:
     """
     mass = WATER
     for aa in sequence:
-        mass += STD_AA_MASS[aa]
+        try:
+            mass += STD_AA_MASS[aa]
+        except KeyError:
+            raise KeyError(f"Unknown amino acid: {aa} in peptide: {sequence}")
     return mass

@@ -4,7 +4,7 @@ import lightgbm as lgb
 import numpy as np
 from loguru import logger
 
-from .constants import BULKY_AAS, NEGATIVE_AAS, POSITIVE_AAS
+from .constants import BULKY_AAS, NEGATIVE_AAS, POSITIVE_AAS, TINY_AAS
 from .data import select_split
 from .mass import calc_mass, mass_to_mz, mz_to_mass  # noqa
 
@@ -14,6 +14,9 @@ FEATURE_COLUMN_DESCRIPTIONS = {
     "PrecursorCharge": "Measured precursor charge, from the isotope envelope",
     "PepLength": "Length of the peptide sequence in amino acids",
     "NumBulky": f"Number of bulky amino acids ({BULKY_AAS})",
+    "NumTiny": f"Number of tiny amino acids ({TINY_AAS})",
+    "NumProlines": "Number of proline residues",
+    "NumGlycines": "Number of proline residues",
     "NumPos": f"Number of positive amino acids ({POSITIVE_AAS})",
     "PosIndexL": f"Relative position of the first positive amino acid ({POSITIVE_AAS})",
     "PosIndexR": f"Relative position of the last positive amino acid ({POSITIVE_AAS})",
@@ -27,6 +30,7 @@ FEATURE_COLUMNS = list(FEATURE_COLUMN_DESCRIPTIONS)
 POSITIVE_AAS_PATTERN = f"[{POSITIVE_AAS}]"
 NEGATIVE_AAS_PATTERN = f"[{NEGATIVE_AAS}]"
 BULKY_AAS_PATTERN = f"[{BULKY_AAS}]"
+TINY_AAS_PATTERN = f"[{TINY_AAS}]"
 
 
 # I am assuming here all peptides will have an n-terminal amine and
@@ -98,6 +102,9 @@ def add_features(
     df["StrippedPeptide"] = df[stripped_sequence_name]
     df["PepLength"] = df[stripped_sequence_name].str.len()
     df["NumBulky"] = df[stripped_sequence_name].str.count(BULKY_AAS_PATTERN)
+    df["NumTiny"] = df[stripped_sequence_name].str.count(TINY_AAS_PATTERN)
+    df["NumProlines"] = df[stripped_sequence_name].str.count("P")
+    df["NumGlycines"] = df[stripped_sequence_name].str.count("G")
     df["NumPos"] = df[stripped_sequence_name].str.count(POSITIVE_AAS_PATTERN)
 
     # This gives the relative position of the first [KRH] in the peptide
@@ -118,13 +125,13 @@ def add_features(
     df["NegIndexR"] = df[stripped_sequence_name].apply(
         lambda x: position_index(x, NEGATIVE_AAS_PATTERN, nterm=True),
     )
-    if calc_mass:
+    if calc_masses:
         df["Mass"] = df[stripped_sequence_name].apply(
             lambda x: calc_mass(x),
         )
         if "PrecursorCharge" not in df.columns:
             logger.warning(
-                "Charge not provided, using default charge of {default_charge}",
+                f"Charge not provided, using default charge of {default_charge}",
             )
             df["PrecursorCharge"] = default_charge
 
@@ -143,6 +150,9 @@ def seq_to_features(stripped_sequence, calc_masses=True, charge=None):
     out_features = {}
     out_features["PepLength"] = len(stripped_sequence)
     out_features["NumBulky"] = sum(stripped_sequence.count(x) for x in BULKY_AAS)
+    out_features["NumTiny"] = sum(stripped_sequence.count(x) for x in TINY_AAS)
+    out_features["NumProlines"] = stripped_sequence.count("P")
+    out_features["NumGlycines"] = stripped_sequence.count("G")
     out_features["NumPos"] = sum(stripped_sequence.count(x) for x in POSITIVE_AAS)
     out_features["PosIndexL"] = position_index(
         stripped_sequence,

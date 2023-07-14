@@ -13,7 +13,14 @@ and the other one is using the python api directly.
 
 ``` shell
 $ pip install flimsay
+```
+
+``` shell
 $ flimsay fill_blib mylibrary.blib # This will add ion mobility data to a .blib file.
+```
+
+``` {shell}
+$ flimsay fill_blib --help
 ```
 
 ### Python
@@ -27,9 +34,7 @@ model_instance = FlimsayModel()
 model_instance.predict_peptide("MYPEPTIDEK", charge=2)
 ```
 
-    (1, 11)
-
-    {'ccs': array([363.98865707]), 'one_over_k0': array([0.92338495])}
+    {'ccs': array([363.98077702]), 'one_over_k0': array([0.92491103])}
 
 #### Many peptides at once
 
@@ -56,11 +61,11 @@ df
     }
 </style>
 
-|     | Stripped_Seqs | PrecursorCharge | StrippedPeptide | PepLength | NumBulky | NumPos | PosIndexL | PosIndexR | NumNeg | NegIndexL | NegIndexR | Mass       | PrecursorMz |
-|-----|---------------|-----------------|-----------------|-----------|----------|--------|-----------|-----------|--------|-----------|-----------|------------|-------------|
-| 0   | LESLIEK       | 2               | LESLIEK         | 7         | 3        | 1      | 0.857143  | 0.000000  | 2      | 0.142857  | 0.142857  | 830.474934 | 416.245292  |
-| 1   | LESLIE        | 2               | LESLIE          | 6         | 3        | 0      | 1.000000  | 1.000000  | 2      | 0.166667  | 0.000000  | 702.379971 | 352.197811  |
-| 2   | LESLKIE       | 2               | LESLKIE         | 7         | 3        | 1      | 0.571429  | 0.285714  | 2      | 0.142857  | 0.000000  | 830.474934 | 416.245292  |
+|     | Stripped_Seqs | PrecursorCharge | StrippedPeptide | PepLength | NumBulky | NumTiny | NumProlines | NumGlycines | NumPos | PosIndexL | PosIndexR | NumNeg | NegIndexL | NegIndexR | Mass       | PrecursorMz |
+|-----|---------------|-----------------|-----------------|-----------|----------|---------|-------------|-------------|--------|-----------|-----------|--------|-----------|-----------|------------|-------------|
+| 0   | LESLIEK       | 2               | LESLIEK         | 7         | 3        | 1       | 0           | 0           | 1      | 0.857143  | 0.000000  | 2      | 0.142857  | 0.142857  | 830.474934 | 416.245292  |
+| 1   | LESLIE        | 2               | LESLIE          | 6         | 3        | 1       | 0           | 0           | 0      | 1.000000  | 1.000000  | 2      | 0.166667  | 0.000000  | 702.379971 | 352.197811  |
+| 2   | LESLKIE       | 2               | LESLKIE         | 7         | 3        | 1       | 0           | 0           | 1      | 0.571429  | 0.285714  | 2      | 0.142857  | 0.000000  | 830.474934 | 416.245292  |
 
 </div>
 
@@ -68,8 +73,8 @@ df
 model_instance.predict(df[FEATURE_COLUMNS])
 ```
 
-    {'ccs': array([314.25224469, 313.11409485, 314.78828474]),
-     'one_over_k0': array([0.78614243, 0.72934712, 0.77875583])}
+    {'ccs': array([314.81143905, 308.20013703, 313.45185519]),
+     'one_over_k0': array([0.78866524, 0.72619415, 0.77991099])}
 
 ## Performance
 
@@ -112,6 +117,12 @@ for k,v in FEATURE_COLUMN_DESCRIPTIONS.items():
         Length of the peptide sequence in amino acids
     >>> The Feature 'NumBulky' is defined as: 
         Number of bulky amino acids (LVIFWY)
+    >>> The Feature 'NumTiny' is defined as: 
+        Number of tiny amino acids (AS)
+    >>> The Feature 'NumProlines' is defined as: 
+        Number of proline residues
+    >>> The Feature 'NumGlycines' is defined as: 
+        Number of proline residues
     >>> The Feature 'NumPos' is defined as: 
         Number of positive amino acids (KRH)
     >>> The Feature 'PosIndexL' is defined as: 
@@ -131,7 +142,7 @@ Currently the training logic is handled using DVC (https://dvc.org).
 
 ``` shell
 git clone {this repo}
-cd flimsy/train
+cd flimsay/train
 dvc repro
 ```
 
