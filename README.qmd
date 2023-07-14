@@ -2,7 +2,7 @@
 ---
 title: "Flimsy: Fun/Fast Simple IMS Anyone like You can use."
 author: "Sebastian Paez"
-format: 
+format:
   gfm
 ---
 
@@ -25,8 +25,9 @@ $ pip install flimsay
 $ flimsay fill_blib mylibrary.blib # This will add ion mobility data to a .blib file.
 ```
 
-```{shell}
-$ flimsay fill_blib --help
+```{python}
+# ! flimsay fill_blib --help
+# Not yet implemented
 ```
 
 ### Python
@@ -46,9 +47,15 @@ model_instance.predict_peptide("MYPEPTIDEK", charge=2)
 import pandas as pd
 from flimsay.features import add_features, FEATURE_COLUMNS
 
-df = pd.DataFrame({"Stripped_Seqs": ["LESLIEK", "LESLIE", "LESLKIE"]})
-df["PrecursorCharge"] = 2
-df = add_features(df, stripped_sequence_name="Stripped_Seqs", calc_masses=True)
+df = pd.DataFrame({
+    "Stripped_Seqs": ["LESLIEK", "LESLIE", "LESLKIE"]
+})
+df = add_features(
+    df,
+    stripped_sequence_name="Stripped_Seqs",
+    calc_masses=True,
+    default_charge=2,
+)
 df
 ```
 
@@ -58,9 +65,58 @@ model_instance.predict(df[FEATURE_COLUMNS])
 
 ## Performance
 
+### Prediction Performance
+
 ![](train/plots/one_over_k0_model_ims_pred_vs_true.png)
 
 ![](train/plots/ccs_predicted_vs_real.png)
+
+### Prediction Speed
+
+#### Single peptide prediction
+
+```{python}
+from flimsay.model import FlimsayModel
+
+model_instance = FlimsayModel()
+
+%timeit model_instance.predict_peptide("MYPEPTIDEK", charge=3)
+```
+
+In my laptop that takes 133 microseconds per peptide, or roughly 7,500 peptides per second.
+
+#### Batch Prediction
+
+```{python}
+# Lets make a dataset of 1M peptides to test
+import random
+import pandas as pd
+from flimsay.features import calc_mass, mass_to_mz, add_features
+
+random.seed(42)
+AMINO_ACIDS = list("ACDEFGHIKLMNPQRSTVWY")
+charges = [2,3,4]
+
+seqs = [random.sample(AMINO_ACIDS, 10) for _ in range(1_000_000)]
+charges = [random.sample(charges, 1)[0] for _ in range(1_000_000)]
+seqs = ["".join(seq) for seq in seqs]
+masses = [calc_mass(x) for x in seqs]
+mzs = [mass_to_mz(m, c) for m, c in zip(masses, charges)]
+
+df = pd.DataFrame({
+    "Stripped_Seqs": seqs,
+    "PrecursorCharge": charges,
+    "Mass": masses,
+    "PrecursorMz": mzs})
+df = add_features(df, stripped_sequence_name="Stripped_Seqs")
+
+
+# Now we get to run the prediction!
+%timeit model_instance.predict(df)
+```
+
+In my system every million peptides is predicted in 8.86 seconds, that is
+~ 113,000 per second.
 
 ## Motivation
 
@@ -85,7 +141,7 @@ for k,v in FEATURE_COLUMN_DESCRIPTIONS.items():
     print(f">>> The Feature '{k}' is defined as: \n\t{v}")
 ```
 
-## Training 
+## Training
 
 Currently the training logic is handled using DVC (https://dvc.org).
 
@@ -97,4 +153,3 @@ dvc repro
 
 Running this should automatically download the data,
 trian the models, calculate and update the metrics.
-

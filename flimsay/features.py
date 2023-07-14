@@ -16,7 +16,8 @@ FEATURE_COLUMN_DESCRIPTIONS = {
     "NumBulky": f"Number of bulky amino acids ({BULKY_AAS})",
     "NumTiny": f"Number of tiny amino acids ({TINY_AAS})",
     "NumProlines": "Number of proline residues",
-    "NumGlycines": "Number of proline residues",
+    "NumGlycines": "Number of glycine residues",
+    "NumSerines": "Number of serine residues",
     "NumPos": f"Number of positive amino acids ({POSITIVE_AAS})",
     "PosIndexL": f"Relative position of the first positive amino acid ({POSITIVE_AAS})",
     "PosIndexR": f"Relative position of the last positive amino acid ({POSITIVE_AAS})",
@@ -105,6 +106,7 @@ def add_features(
     df["NumTiny"] = df[stripped_sequence_name].str.count(TINY_AAS_PATTERN)
     df["NumProlines"] = df[stripped_sequence_name].str.count("P")
     df["NumGlycines"] = df[stripped_sequence_name].str.count("G")
+    df["NumSerines"] = df[stripped_sequence_name].str.count("S")
     df["NumPos"] = df[stripped_sequence_name].str.count(POSITIVE_AAS_PATTERN)
 
     # This gives the relative position of the first [KRH] in the peptide
@@ -153,6 +155,7 @@ def seq_to_features(stripped_sequence, calc_masses=True, charge=None):
     out_features["NumTiny"] = sum(stripped_sequence.count(x) for x in TINY_AAS)
     out_features["NumProlines"] = stripped_sequence.count("P")
     out_features["NumGlycines"] = stripped_sequence.count("G")
+    out_features["NumSerines"] = stripped_sequence.count("S")
     out_features["NumPos"] = sum(stripped_sequence.count(x) for x in POSITIVE_AAS)
     out_features["PosIndexL"] = position_index(
         stripped_sequence,

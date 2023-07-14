@@ -4,12 +4,18 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 import vizta
+from dataset_utils import find_mod_pairs, write_simple_toml
 from lightgbm.callback import log_evaluation
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 
 from flimsay.data import select_split
-from flimsay.features import FEATURE_COLUMNS, add_features, df_to_split_datasets
+from flimsay.features import (
+    FEATURE_COLUMNS,
+    add_features,
+    df_to_split_datasets,
+    mass_to_mz,
+)
 
 WEIGHTS_LOCATION = Path(__file__).parent / "../weights"
 PLOTS_LOCATION = Path(__file__).parent / "../plots"
@@ -22,17 +28,23 @@ vizta.mpl.set_theme()  # Set the theme
 rcParams.update({"figure.autolayout": True})
 
 peplib = pd.read_csv(DATA_LOCATION / "ccs_data.csv", index_col=0)
+
+peplib["Modified sequence"] = peplib["Modified sequence"].str.replace("_", "")
 peplib["PeptideSequence"] = peplib["Modified sequence"].str.replace(
     "[a-z_()]",
     "",
     regex=True,
 )
-peplib["PrecursorCharge"] = peplib["Charge"]
-peplib["PrecursorMz"] = (peplib["Mass"] + (peplib["Charge"] * 1.007276)) / peplib[
-    "Charge"
-]
 
-peplib = add_features(peplib)
+
+_ = find_mod_pairs(
+    peplib["Modified sequence"].to_list(),
+    peplib["PeptideSequence"].to_list(),
+)
+peplib["PrecursorCharge"] = peplib["Charge"]
+peplib["PrecursorMz"] = mass_to_mz(peplib["Mass"], peplib["Charge"])
+
+peplib = add_features(peplib, calc_masses=False)
 train_data, validation_data, test_data = df_to_split_datasets(
     peplib,
     "CCS",
@@ -45,10 +57,10 @@ num_round = 2000
 param = {
     "objective": "regression",
     "metric": ["l1", "l2_root"],
-    "num_leaves": 21,
+    "num_leaves": 51,
     "early_stopping_rounds": 20,
     "learning_rate": 0.1,
-    "pred_early_stop_margin": 0.1,
+    "pred_early_stop_margin": 1e-3,
 }
 
 bst = lgb.train(
@@ -174,6 +186,4 @@ plt.savefig(PLOTS_LOCATION / "ccs_cumulative_error.png")
 
 # Save metrics
 # This is a pretty simple and plain toml file
-with open(PLOTS_LOCATION / "ccs_model_metrics.toml", "w+") as f:
-    for k, v in metrics.items():
-        f.write(f"{k}: {v}\n")
+write_simple_toml(PLOTS_LOCATION / "ccs_model_metrics.toml", metrics)

@@ -3,7 +3,7 @@ stages:
   get_data:
     cmd:
     - mkdir -p data
-    - wget 
+    - wget
       https://github.com/theislab/DeepCollisionalCrossSection/blob/master/data/combined_sm.csv.tar.gz\?raw\=true
       -O ccs_data.csv.tar.gz
     - tar -xzf ccs_data.csv.tar.gz
@@ -16,7 +16,7 @@ stages:
   get_pride_data:
     cmd:
     - mkdir -p data
-    - wget -c 
+    - wget -c
       ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2022/08/PXD034640/IM-GPF_library.tsv
     - mv IM-GPF_library.tsv ./data/.
     - wget -c ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2022/08/PXD034640/Deep_Library.tsv
@@ -41,32 +41,32 @@ stages:
     outs:
     - path: plots/one_over_k0_model_feature_importance.png
       hash: md5
-      md5: d792f8ead2b74b09f7488139a73500d0
-      size: 27116
+      md5: d0f4aabb9c14ff43fae95f349db960f9
+      size: 30423
     - path: plots/one_over_k0_model_ims_error.png
       hash: md5
-      md5: 9290aa16250e3ec894b2a24425f9779c
-      size: 185951
+      md5: b3aed8061e8502e44c736f6fd7472af1
+      size: 185052
     - path: plots/one_over_k0_model_ims_error_cumulative.png
       hash: md5
-      md5: 6b728e687892073ac0c52a53fbf16af8
-      size: 42422
+      md5: 20ab532371ac834b378e78162440360a
+      size: 42464
     - path: plots/one_over_k0_model_ims_error_hist.png
       hash: md5
-      md5: 0713ac1d88eb722c760166feeaf48033
-      size: 28753
+      md5: 6d321de3992df2bbf9450facb707b9ec
+      size: 28422
     - path: plots/one_over_k0_model_ims_pred_vs_true.png
       hash: md5
-      md5: 4030591136bd794f54fb93b7b82ba8b5
-      size: 90256
+      md5: dd601ff531e4cfae9929cc2716ba3609
+      size: 90614
     - path: plots/one_over_k0_model_metrics.toml
       hash: md5
-      md5: f7bfae37c7d383b4ab9c39882e1f4698
+      md5: a9c7b7de21d01c525b7fa9d4f5794ce9
       size: 66
     - path: weights/one_over_k0_model.txt
       hash: md5
-      md5: 9e5edf4df5f1c040a46d189e1a87c6f6
-      size: 1953792
+      md5: 6bac3a9ac0388d1023ba4b810b56c650
+      size: 2534003
   train_ccs_model:
     cmd:
     - python scripts/train_ccs.py
@@ -78,29 +78,29 @@ stages:
     outs:
     - path: plots/ccs_cumulative_error.png
       hash: md5
-      md5: d55ac7091f979e9e1d2e3a1e03b5bab2
-      size: 39896
+      md5: 7b1e13c1a470d57d2b7bdbf14df92d79
+      size: 40022
     - path: plots/ccs_error.png
       hash: md5
-      md5: 4245cfaac5af35b1dd74facf7399ea04
-      size: 17332
+      md5: 8fd09d204d5722d42ade8cf92a0feda8
+      size: 17478
     - path: plots/ccs_feature_importance.png
       hash: md5
-      md5: 0a1144cb2cd14c095a7dc4fafc18f494
-      size: 28480
+      md5: daff4450a28700e50d64111a61bd4c51
+      size: 28471
     - path: plots/ccs_model_metrics.toml
       hash: md5
-      md5: e84f8eed3282d01f368e4276710bd5b3
-      size: 59
+      md5: 2661499b28c7c66069bb56f14afee7c2
+      size: 60
     - path: plots/ccs_mz_vs_error.png
       hash: md5
-      md5: d5e48a93d5ad1d7a009c6b74992ff5e5
-      size: 116044
+      md5: 4a57cc277193e35156cac487ca8cfbb2
+      size: 118125
     - path: plots/ccs_predicted_vs_real.png
       hash: md5
-      md5: a85ceed8b8769c357fce615e6ea122a9
-      size: 72758
+      md5: 218d2ae10b2d19cc87a41da6684f85e0
+      size: 71311
     - path: weights/ccs_model.txt
       hash: md5
-      md5: 394871cac745ee1969807b3683c9423b
-      size: 1646570
+      md5: 4161b408faf61cb5cd185b479a06aca7
+      size: 1750627

@@ -1,4 +1,3 @@
-import re
 from pathlib import Path
 
 import lightgbm as lgb
@@ -6,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import vizta
+from dataset_utils import find_mod_pairs, write_simple_toml
 from lightgbm.callback import log_evaluation
 from loguru import logger
 from matplotlib import rcParams
@@ -86,24 +86,17 @@ peplib = pd.read_csv(
         "IonMobility",
     ],
 ).drop_duplicates(keep="first")
+
+peplib["ModifiedPeptide"] = peplib["ModifiedPeptide"].str.replace("_", "")
 peplib = add_features(peplib, stripped_sequence_name="StrippedPeptide")
 peplib["Mass"] = mz_to_mass(peplib["PrecursorMz"], peplib["PrecursorCharge"])
 logger.info(peplib)
 
-# Count the number of modifications
-# _GM[Oxidation (M)]PVTAR = 1
-# _GM[Oxidation (M)]PVTAR[Oxidation (M)] = 2
 
-mod_count = {}
-modification_regex = re.compile(r"\[([^\]]+)\]")
-for mod_peptide in peplib["ModifiedPeptide"]:
-    mods = modification_regex.findall(mod_peptide)
-    for mod in mods:
-        if mod not in mod_count:
-            mod_count[mod] = 0
-        mod_count[mod] += 1
-
-logger.info(mod_count)
+_ = find_mod_pairs(
+    peplib["ModifiedPeptide"].to_list(),
+    peplib["StrippedPeptide"].to_list(),
+)
 
 train_dataset, val_dataset, test_dataset = df_to_split_datasets(
     peplib,
@@ -118,9 +111,10 @@ num_round = 2000
 param = {
     "objective": "regression",
     "metric": ["l1", "l2_root"],
-    "num_leaves": 21,
+    "num_leaves": 51,
     "early_stopping_rounds": 20,
     "learning_rate": 0.05,
+    "pred_early_stop_margin": 1e-4,
 }
 
 bst = lgb.train(
@@ -261,7 +255,4 @@ logger.info(metrics)
 
 
 # Save metrics
-# This is a pretty simple and plain toml file
-with open(PLOTS_LOCATION / "one_over_k0_model_metrics.toml", "w+") as f:
-    for k, v in metrics.items():
-        f.write(f"{k} = {v}\n")
+write_simple_toml(PLOTS_LOCATION / "one_over_k0_model_metrics.toml", metrics)
