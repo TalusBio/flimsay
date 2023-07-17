@@ -51,6 +51,7 @@ plot = [
 build = [
     "nbformat",
     "nbclient",
+    "ipykernel",
     "wheel",
     "twine",
 ]
