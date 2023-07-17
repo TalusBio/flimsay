@@ -63,11 +63,11 @@ flimsay = ["*.txt"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--doctest-modules -v"
+addopts = "--doctest-modules -v --cov=flimsay"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 testpaths = [
     "flimsay",
-    "tests",
+    "tests/unit_tests",
 ]
 
 [tool.ruff]
@@ -87,12 +87,13 @@ fix = true
 
 [tool.ruff.per-file-ignores]
 "**__init__.py" = ["D104"]
+"tests/**.py" = ["ANN201"]
 
 # ANN001 Missing type annotation for function argument
 # Ignoring in the cli since it is redundant with the click options
 # D103 Missing docstring in public function
 # Information in the help of the click command.
-"diadem/cli.py" = ["ANN001", "D103"]
+"flimsay/cli.py" = ["ANN001", "D103"]
 
 [tool.black]
 line-length = 88

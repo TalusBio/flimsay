@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
+import pytest
 
-from flimsay.features import add_features, seq_to_features
+from flimsay.features import FEATURE_COLUMN_DESCRIPTIONS, add_features, seq_to_features
 
 
 def test_add_features():
@@ -34,17 +35,24 @@ def test_seq_to_features():
     assert abs(feats["NegIndexR"] - 0.14) < 0.01
 
 
-def test_seq_to_features_consistency():
+@pytest.fixture
+def _sample_sequences():
     import random
 
     random.seed(42)
-    AMINO_ACIDS = list("ACDEFGHIKLMNPQRSTVWY")
+    AMINO_ACIDS = list("ACDEFGHIKLMNPQRSTVWY")  # noqa
     seqs = [random.sample(AMINO_ACIDS, 10) for _ in range(100)]
     seqs = ["".join(seq) for seq in seqs]
     df = pd.DataFrame({"Stripped_Seqs": seqs})
-    df = add_features(df, stripped_sequence_name="Stripped_Seqs")
+    return df, seqs
+
+
+def test_seq_to_features_consistency(_sample_sequences):
+    """Test that the features are consistent with the dataframe version."""
+    df, seqs = _sample_sequences
+    df = add_features(df, stripped_sequence_name="Stripped_Seqs", calc_masses=True)
 
     for i, seq in enumerate(seqs):
-        feats = seq_to_features(seq)
-        for k, v in feats.items():
-            assert df[k].tolist()[i] == v, f"Failed for {k} and {seq}"
+        feats = seq_to_features(seq, calc_masses=True, charge=2)
+        for k in FEATURE_COLUMN_DESCRIPTIONS:
+            assert df[k].tolist()[i] == feats[k], f"Failed for {k} and {seq}"

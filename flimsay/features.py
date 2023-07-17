@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import re
 
 import lightgbm as lgb
 import numpy as np
 from loguru import logger
+from pandas import DataFrame
 
 from .constants import BULKY_AAS, NEGATIVE_AAS, POSITIVE_AAS, TINY_AAS
 from .data import select_split
@@ -40,7 +43,7 @@ def position_index(
     peptide: str,
     pattern: re.Pattern | str = "[KRH]",
     nterm: bool = True,
-):
+) -> float:
     """Returns the relative position of the first amino acid matching.
 
     Parameters
@@ -87,15 +90,40 @@ def position_index(
 
 
 def add_features(
-    df,
-    stripped_sequence_name="PeptideSequence",
-    calc_masses=False,
-    default_charge=2,
-):
+    df: DataFrame,
+    stripped_sequence_name: str = "PeptideSequence",
+    calc_masses: bool = False,
+    default_charge: int = 2,
+) -> DataFrame:
+    """Add features to a DataFrame.
+
+    Adds the features required by a FlimsayModel to predict ion mobility
+    from a peptide sequence. The input DataFrame must have a column
+    with the unmodified peptide sequence, which is passed as the second
+    argument.
+
+    Parameters
+    ----------
+    df : DataFrame
+        Input DataFrame
+    stripped_sequence_name : str
+        Name of the column with the unmodified peptide sequence.
+    calc_masses : bool
+        If True, calculate the mass and m/z of the peptide sequence.
+        This is optional because there migth be a case where the observed
+        mass is not the same as the calculated mass for the un-modified
+        peptide sequence. For instance, adding the mass of an oxidation
+        will give a more prediction of IMS even though it does not correspond
+        to the unmodified sequence mass.
+    default_charge : int
+        By default it will look for a column named 'PrecursorCharge' when absent
+        it will use this value.
+
+    """
     if np.any(df[stripped_sequence_name].str.contains("[a-z_()0-9]")):
         raise ValueError(
-            f"Peptide sequence column {stripped_sequence_name} contains non-amino acid"
-            " characters",
+            f"Peptide sequence column {stripped_sequence_name} contains non-amino"
+            " acid characters",
         )
     # This two columns are added to later train a simple model that
     # predicts the ion mobility. We will need that model to fill the
@@ -141,7 +169,42 @@ def add_features(
     return df
 
 
-def seq_to_features(stripped_sequence, calc_masses=True, charge=None):
+def seq_to_features(
+    stripped_sequence: str,
+    calc_masses: bool = False,
+    charge: int | None = None,
+) -> dict[str, float]:
+    """Calculate features from a peptide sequence.
+
+    Parameters
+    ----------
+    stripped_sequence : str
+        Peptide sequence without modifications.
+    calc_masses : bool
+        If True, calculate the mass and m/z of the peptide sequence.
+    charge : int
+        Precursor charge of the peptide sequence.
+
+    Returns
+    -------
+    dict
+        Dictionary with the calculated features.
+
+    Raises
+    ------
+    ValueError
+        If the sequence contains invalid characters.
+    ValueError
+        If calc_masses is True and charge is None.
+
+    Examples
+    --------
+    >>> out = seq_to_features("LESLIEK", calc_masses=True, charge=2)
+    >>> print(list(out.keys()))
+        ['PepLength', 'NumBulky', 'NumTiny', 'NumProlines', 'NumGlycines',
+         'NumSerines', 'NumPos', 'PosIndexL', 'PosIndexR', 'NumNeg', 'NegIndexL',
+         'NegIndexR', 'PrecursorCharge', 'Mass', 'PrecursorMz']
+    """
     if any(x in stripped_sequence for x in "[]+_-"):
         raise ValueError(
             "Provided sequence '{stripped_sequence}' contains invalid characters",
@@ -186,7 +249,13 @@ def seq_to_features(stripped_sequence, calc_masses=True, charge=None):
     return out_features
 
 
-def lgb_ims_dataset(df, target_name):
+def lgb_ims_dataset(df: DataFrame, target_name: str) -> lgb.Dataset:
+    """Generates an lgb.Dataset from a dataframe.
+
+    The input datafreme must have the columns
+    specified in FEATURE_COLUMNS and a target column with name
+    target_name.
+    """
     for col in FEATURE_COLUMNS:
         if col not in df.columns:
             raise ValueError(f"Column {col} not found in dataframe")
@@ -198,7 +267,27 @@ def lgb_ims_dataset(df, target_name):
     )
 
 
-def df_to_split_datasets(df, target_name, stripped_sequence_name="PeptideSequence"):
+def df_to_split_datasets(
+    df: DataFrame,
+    target_name: str,
+    stripped_sequence_name: str = "PeptideSequence",
+) -> tuple(lgb.Dataset, lgb.Dataset, lgb.Dataset):
+    """Split a dataframe into train, val and test datasets.
+
+    Parameters
+    ----------
+    df : DataFrame
+        Input dataframe.
+    target_name : str
+        Name of the target column.
+    stripped_sequence_name : str
+        Name of the column containing the peptide sequence without modifications.
+
+    Returns
+    -------
+    tuple
+        Tuple of train, val and test datasets.
+    """
     df["Split"] = df[stripped_sequence_name].apply(select_split)
     train_df = df[df["Split"] == "Train"]
     test_df = df[df["Split"] == "Test"]
@@ -213,4 +302,5 @@ def df_to_split_datasets(df, target_name, stripped_sequence_name="PeptideSequenc
     val_dataset = lgb_ims_dataset(val_df, target_name)
     test_dataset = lgb_ims_dataset(test_df, target_name)
 
+    # TODO: Should this be a named tuple?
     return train_dataset, val_dataset, test_dataset

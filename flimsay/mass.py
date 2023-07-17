@@ -1,7 +1,7 @@
 from .constants import PROTON, STD_AA_MASS, WATER
 
 
-def mz_to_mass(mz, charge):
+def mz_to_mass(mz: float, charge: int) -> float:
     """Calculate the mass of a peptide given its m/z and charge.
 
     Examples
@@ -12,7 +12,7 @@ def mz_to_mass(mz, charge):
     return (mz * charge) - charge * PROTON
 
 
-def mass_to_mz(mass, charge):
+def mass_to_mz(mass: float, charge: int) -> float:
     """Calculate the m/z of a peptide given its mass and charge.
 
     This assumes the charge adduct is a proton.
@@ -30,7 +30,7 @@ def mass_to_mz(mass, charge):
 # From https://web.expasy.org/peptide_mass/
 
 
-def calc_mass(sequence) -> float:
+def calc_mass(sequence: str) -> float:
     """Calculate the mass of a peptide sequence.
 
     Parameters
@@ -54,5 +54,5 @@ def calc_mass(sequence) -> float:
         try:
             mass += STD_AA_MASS[aa]
         except KeyError:
-            raise KeyError(f"Unknown amino acid: {aa} in peptide: {sequence}")
+            raise KeyError(f"Unknown amino acid: {aa} in peptide: {sequence}") from None
     return mass

@@ -153,3 +153,6 @@ dvc repro
 
 Running this should automatically download the data,
 trian the models, calculate and update the metrics.
+
+The current version of this repo uses predominantly the data from:
+- Meier, F., Köhler, N.D., Brunner, AD. et al. Deep learning the collisional cross sections of the peptide universe from a million experimental values. Nat Commun 12, 1185 (2021). https://doi.org/10.1038/s41467-021-21352-8
