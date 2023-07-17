@@ -50,6 +50,7 @@ plot = [
 ]
 build = [
     "nbformat",
+    "nbclient",
     "wheel",
     "twine",
 ]
