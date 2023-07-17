@@ -53,6 +53,7 @@ build = [
     "nbclient",
     "ipykernel",
     "wheel",
+    "build",
     "twine",
 ]
 dev = [
