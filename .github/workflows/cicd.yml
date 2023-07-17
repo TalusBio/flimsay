@@ -52,7 +52,7 @@ jobs:
     - name: Set up quarto
       uses: quarto-dev/quarto-actions/setup@v2
     - name: Render README
-      uses: quarto render README.qmd
+      run: quarto render README.qmd
     - name: build wheel
       run: python -m build
     - name: pypi-publish
