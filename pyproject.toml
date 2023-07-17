@@ -48,6 +48,11 @@ plot = [
     "matplotlib",
     "vizta",
 ]
+build = [
+    "nbformat",
+    "wheel",
+    "twine",
+]
 dev = [
     "ruff >= 0.0.253",
     "black >= 23.1.0",
