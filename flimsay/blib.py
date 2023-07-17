@@ -76,7 +76,9 @@ CREATE TABLE LibInfo(
 
 
 def fill_blib(
-    blib: os.PathLike, out_blib: os.PathLike, overwrite: bool = False
+    blib: os.PathLike,
+    out_blib: os.PathLike,
+    overwrite: bool = False,
 ) -> None:
     """Fill a blib file with predicted ion mobility values.
 
@@ -194,7 +196,7 @@ def fill_blib(
         logger.debug(df.head())
     except pd.errors.DatabaseError:
         logger.warning(
-            "No RetentionTimes table found, will proceed without updating it."
+            "No RetentionTimes table found, will proceed without updating it.",
         )
 
     # Just a print for sanity checking

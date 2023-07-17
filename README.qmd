@@ -6,10 +6,10 @@ format:
   gfm
 ---
 
+version = 0.1.0
 
 This repository implements a very simple LGBM model
 to predict ion mobility from peptides.
-
 
 ## Usage
 

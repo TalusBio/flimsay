@@ -14,9 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
     - name: pre-commit
       uses: pre-commit/action@v3.0.0
-      
+
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -55,4 +59,3 @@ jobs:
         # Show verbose output.
         verbose: true # optional, default is false
         # Show hash values of files to be uploaded
-        
