@@ -9,7 +9,7 @@ authors = [
     {name = "Sebastian Paez", email = "spaez@talus.bio"},
 ]
 description = "A super simple fast IMS predictor"
-requires-python = ">=3.9,<3.11"
+requires-python = ">=3.9,<3.12"
 keywords = ["proteomics", "dia", "ion mobility"]
 license = {text = "Apache 2.0"}
 classifiers = [
