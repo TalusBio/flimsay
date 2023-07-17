@@ -23,11 +23,12 @@ dependencies = [
     "tqdm >= 4.64.1",
     "loguru >= 0.6.0",
     "lightgbm >= 3.3.5",
+    "rich-click >= 1.6.1",
 ]
 dynamic = ["version"]
 
-# [project.scripts]
-# flimsay = "flimsay.cli:main_cli"
+[project.scripts]
+flimsay = "flimsay.cli:cli"
 
 [project.readme]
 file = "README.md"

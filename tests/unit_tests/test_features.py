@@ -2,7 +2,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from flimsay.features import FEATURE_COLUMN_DESCRIPTIONS, add_features, seq_to_features
+from flimsay.features import (
+    FEATURE_COLUMN_DESCRIPTIONS,
+    add_features,
+    calc_mass,
+    seq_to_features,
+)
 
 
 def test_add_features():
@@ -56,3 +61,20 @@ def test_seq_to_features_consistency(_sample_sequences):
         feats = seq_to_features(seq, calc_masses=True, charge=2)
         for k in FEATURE_COLUMN_DESCRIPTIONS:
             assert df[k].tolist()[i] == feats[k], f"Failed for {k} and {seq}"
+
+
+def test_masses_fail_with_wrong_aas():
+    correct_sequences = ["LESLIEK", "LESLIE", "LESLKIE"]
+    for seq in correct_sequences:
+        calc_mass(seq)
+
+    incorrect_sequences = [
+        "_LESLIEK_",
+        "LES[UNIMOD:21]LIE",
+        "A.LESLKIE.A",
+        "ACET-LESLIEK",
+        "LES(PHOS)LIEKACET",
+    ]
+    for seq in incorrect_sequences:
+        with pytest.raises(KeyError):
+            calc_mass(seq)

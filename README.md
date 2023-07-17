@@ -20,9 +20,18 @@ $ flimsay fill_blib mylibrary.blib # This will add ion mobility data to a .blib 
 ```
 
 ``` python
-# ! flimsay fill_blib --help
-# Not yet implemented
+! flimsay fill_blib --help
 ```
+
+
+     Usage: flimsay fill_blib [OPTIONS] BLIB OUT_BLIB
+
+     Add ion mobility prediction to a .blib file.
+
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --overwrite      Whether to overwrite output file, if it exists              │
+    │ --help           Show this message and exit.                                 │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
 
 ### Python
 
@@ -55,7 +64,7 @@ df = add_features(
 df
 ```
 
-    2023-07-14 07:55:41.608 | WARNING  | flimsay.features:add_features:135 - Charge not provided, using default charge of 2
+    2023-07-17 01:54:10.066 | WARNING  | flimsay.features:add_features:163 - Charge not provided, using default charge of 2
 
 <div>
 <style scoped>
@@ -89,9 +98,9 @@ model_instance.predict(df[FEATURE_COLUMNS])
 
 ### Prediction Performance
 
-![](train/plots/one_over_k0_model_ims_pred_vs_true.png)
+![](https://github.com/TalusBio/flimsay/blob/main/train/plots/one_over_k0_model_ims_pred_vs_true.png)
 
-![](train/plots/ccs_predicted_vs_real.png)
+![](https://github.com/TalusBio/flimsay/blob/main/train/plots/ccs_predicted_vs_real.png)
 
 ### Prediction Speed
 
@@ -105,7 +114,7 @@ model_instance = FlimsayModel()
 %timeit model_instance.predict_peptide("MYPEPTIDEK", charge=3)
 ```
 
-    125 µs ± 5.72 µs per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
+    135 µs ± 10.7 µs per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
 
 In my laptop that takes 133 microseconds per peptide, or roughly 7,500
 peptides per second.
@@ -140,7 +149,7 @@ df = add_features(df, stripped_sequence_name="Stripped_Seqs")
 %timeit model_instance.predict(df)
 ```
 
-    7.15 s ± 547 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+    7.79 s ± 1.42 s per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
 In my system every million peptides is predicted in 8.86 seconds, that is
 113,000 per second.
@@ -213,3 +222,9 @@ dvc repro
 
 Running this should automatically download the data, trian the models,
 calculate and update the metrics.
+
+The current version of this repo uses predominantly the data from: -
+Meier, F., Köhler, N.D., Brunner, AD. et al. Deep learning the
+collisional cross sections of the peptide universe from a million
+experimental values. Nat Commun 12, 1185 (2021).
+https://doi.org/10.1038/s41467-021-21352-8

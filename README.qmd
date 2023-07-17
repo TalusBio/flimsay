@@ -26,8 +26,7 @@ $ flimsay fill_blib mylibrary.blib # This will add ion mobility data to a .blib 
 ```
 
 ```{python}
-# ! flimsay fill_blib --help
-# Not yet implemented
+! flimsay fill_blib --help
 ```
 
 ### Python
@@ -67,9 +66,9 @@ model_instance.predict(df[FEATURE_COLUMNS])
 
 ### Prediction Performance
 
-![](train/plots/one_over_k0_model_ims_pred_vs_true.png)
+![](https://github.com/TalusBio/flimsay/blob/main/train/plots/one_over_k0_model_ims_pred_vs_true.png)
 
-![](train/plots/ccs_predicted_vs_real.png)
+![](https://github.com/TalusBio/flimsay/blob/main/train/plots/ccs_predicted_vs_real.png)
 
 ### Prediction Speed
 

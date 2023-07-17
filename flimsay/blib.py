@@ -1,5 +1,7 @@
-import argparse
+import os
+import shutil
 import sqlite3
+from pathlib import Path
 
 import pandas as pd
 from loguru import logger
@@ -73,9 +75,39 @@ CREATE TABLE LibInfo(
 """
 
 
-def main(blib):
+def fill_blib(
+    blib: os.PathLike, out_blib: os.PathLike, overwrite: bool = False
+) -> None:
+    """Fill a blib file with predicted ion mobility values.
+
+    Parameters
+    ----------
+    blib : os.PathLike
+        Path to the input blib file.
+    out_blib : os.PathLike
+        Path to the output blib file.
+    overwrite : bool, optional
+        Whether to overwrite the output file if it already exists, by default False
+    """
     pred_model = FlimsayModel()
-    conn = sqlite3.connect(blib)
+
+    out_blib = Path(out_blib)
+    blib = Path(blib)
+
+    if out_blib.exists() and not overwrite:
+        raise FileExistsError("Output file already exists")
+
+    if not blib.exists():
+        raise FileNotFoundError(f"Input file '{blib}' does not exist")
+
+    if not out_blib.parent.exists():
+        out_blib.parent.mkdir(parents=True)
+
+    logger.info("Copying file")
+    shutil.copy(blib, out_blib)
+
+    logger.info("Connecting to database")
+    conn = sqlite3.connect(out_blib)
     cur = conn.cursor()
     logger.info("Reading from file")
     df = pd.read_sql_query("SELECT * FROM RefSpectra", conn)
@@ -129,38 +161,45 @@ def main(blib):
     )
 
     logger.info("Updating RetentionTimes Table")
-    rtdf = pd.read_sql_query("SELECT * FROM RetentionTimes", conn)
-
     try:
-        del rtdf["ionMobilityValue"]
-    except KeyError:
-        pass
+        rtdf = pd.read_sql_query("SELECT * FROM RetentionTimes", conn)
+        try:
+            del rtdf["ionMobilityValue"]
+        except KeyError:
+            pass
 
-    rtdf["ionMobility"] = [id_to_imns[x] for x in rtdf["RefSpectraID"]]
-    rtdf["collisionalCrossSectionSqA"] = [id_to_ccs[x] for x in rtdf["RefSpectraID"]]
-    rtdf["ionMobilityType"] = 2
-    rtdf["ionMobilityHighEnergyOffset"] = float(0)
+        rtdf["ionMobility"] = [id_to_imns[x] for x in rtdf["RefSpectraID"]]
+        rtdf["collisionalCrossSectionSqA"] = [
+            id_to_ccs[x] for x in rtdf["RefSpectraID"]
+        ]
+        rtdf["ionMobilityType"] = 2
+        rtdf["ionMobilityHighEnergyOffset"] = float(0)
 
-    # Making sure this is a float
-    im_offset = rtdf["ionMobilityHighEnergyOffset"].astype("float64")
-    rtdf["ionMobilityHighEnergyOffset"] = im_offset
+        # Making sure this is a float
+        im_offset = rtdf["ionMobilityHighEnergyOffset"].astype("float64")
+        rtdf["ionMobilityHighEnergyOffset"] = im_offset
 
-    cur.execute("DROP TABLE RetentionTimes")
-    cur.executescript(RT_SCHEMA)
-    rtdf.to_sql(
-        "RetentionTimes",
-        conn,
-        if_exists="replace",
-        index=False,
-        schema=RT_SCHEMA,
-    )
+        cur.execute("DROP TABLE RetentionTimes")
+        cur.executescript(RT_SCHEMA)
+        rtdf.to_sql(
+            "RetentionTimes",
+            conn,
+            if_exists="replace",
+            index=False,
+            schema=RT_SCHEMA,
+        )
+
+        logger.debug("Printing header of the new RetentionTimes table")
+        df = pd.read_sql_query("SELECT * FROM RetentionTimes LIMIT 5", conn)
+        logger.debug(df.head())
+    except pd.errors.DatabaseError:
+        logger.warning(
+            "No RetentionTimes table found, will proceed without updating it."
+        )
 
     # Just a print for sanity checking
-    logger.debug("Printing header of the new table")
+    logger.debug("Printing header of the new RefSpectra table")
     df = pd.read_sql_query("SELECT * FROM RefSpectra LIMIT 5", conn)
-    logger.debug(df.head())
-
-    df = pd.read_sql_query("SELECT * FROM RetentionTimes LIMIT 5", conn)
     logger.debug(df.head())
 
     logger.info("Creating ims info table")
@@ -197,18 +236,3 @@ def main(blib):
     conn.commit()
     conn.close()
     logger.info("Done!")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Add IMS to BLIB")
-    parser.add_argument("blib", help="BLIB file")
-
-    args, unknown = parser.parse_known_args()
-    if unknown:
-        raise RuntimeError("Unrecognized arguments: ", unknown)
-    else:
-        main(
-            args.blib,
-            one_over_k0_model_file=args.one_over_k0_model_file,
-            ccs_model_file=args.ccs_model_file,
-        )
