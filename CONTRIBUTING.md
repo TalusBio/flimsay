@@ -76,4 +76,14 @@ twine upload dist/*
 
 ### Maintaining dependencies
 
-asdad
+TODO
+
+### Documentation
+
+Since the project right now is fairly small in scope,
+most of the documentation is done either in-code in the
+form of dosctrings or directly on the README.qmd.
+
+Note that the readme is rendered using quarto, therefore
+edits should be done on that file, which gets executed and
+generated as the final readme in github and pypi.

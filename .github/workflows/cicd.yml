@@ -5,9 +5,9 @@ name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "release" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "release" ]
 
 jobs:
   lint:
@@ -18,8 +18,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
-    - name: pre-commit
-      uses: pre-commit/action@v3.0.0
+    - name: Set up pre-commit
+      run: python -m pip install pre-commit && pre-commit install
+    - name: Run pre-commit
+      run: pre-commit run --all-files
 
   build:
     runs-on: ubuntu-latest
@@ -47,9 +49,14 @@ jobs:
       with:
         # Specify whether the Codecov output should be verbose
         verbose: true # optional
+    - name: Set up quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+    - name: Render README
+      uses: quarto render README.qmd
+    - name: build wheel
+      run: python -m build
     - name: pypi-publish
-      # You may pin to the exact commit or the version.
-      # uses: pypa/gh-action-pypi-publish@f8c70e705ffc13c3b4d1221169b84f12a75d6ca8
+      if: github.event_name == 'push' && ${{ github.ref == 'refs/heads/release' }}
       uses: pypa/gh-action-pypi-publish@v1.8.8
       with:
         # Password for your PyPI user or an access token
@@ -58,4 +65,4 @@ jobs:
         packages-dir: dist # optional
         # Show verbose output.
         verbose: true # optional, default is false
-        # Show hash values of files to be uploaded
+        skip-existing: true
