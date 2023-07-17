@@ -90,13 +90,13 @@ fix = true
 
 [tool.ruff.per-file-ignores]
 "**__init__.py" = ["D104"]
-"tests/**.py" = ["ANN201"]
+"tests/**.py" = ["ANN201", "ANN001", "ANN202"]
 
 # ANN001 Missing type annotation for function argument
 # Ignoring in the cli since it is redundant with the click options
 # D103 Missing docstring in public function
 # Information in the help of the click command.
-"flimsay/cli.py" = ["ANN001", "D103"]
+"flimsay/cli.py" = ["ANN001", "ANN201", "D103"]
 
 [tool.black]
 line-length = 88

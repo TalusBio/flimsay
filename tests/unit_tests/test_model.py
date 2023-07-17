@@ -3,6 +3,7 @@ from io import StringIO
 import numpy as np
 import pandas as pd
 import pytest
+from loguru import logger
 
 from flimsay.features import add_features, mz_to_mass
 from flimsay.model import FlimsayModel
@@ -20,7 +21,7 @@ GT_DATA = """
 562396	2	_DGTYAVTYVPLTAGMYTLTM[Oxidation (M)]K_	DGTYAVTYVPLTAGMYTLTMK	96.014000	1.305	1156.563080	Filamin-B
 """  # noqa
 
-COLNAMES = "	PrecursorCharge	ModifiedPeptide	StrippedPeptide	iRT	IonMobility	PrecursorMz	ProteinDescription"
+COLNAMES = "	PrecursorCharge	ModifiedPeptide	StrippedPeptide	iRT	IonMobility	PrecursorMz	ProteinDescription"  # noqa
 
 
 @pytest.fixture
@@ -29,6 +30,7 @@ def _gt_data():
 
 
 def test_predictions_stripped_peptide(_gt_data):
+    """Tests that predictions are close to ground truth using the model weights."""
     model = FlimsayModel()
     tmp_iter = zip(
         _gt_data["StrippedPeptide"].to_list(),
@@ -41,6 +43,7 @@ def test_predictions_stripped_peptide(_gt_data):
 
 
 def test_predictions_batched(_gt_data):
+    """Tests that predictions are close to ground truth using the model weights."""
     model = FlimsayModel()
     df = add_features(_gt_data, stripped_sequence_name="StrippedPeptide")
     df["Mass"] = mz_to_mass(df["PrecursorMz"], df["PrecursorCharge"])
@@ -48,5 +51,5 @@ def test_predictions_batched(_gt_data):
 
     closeness = np.allclose(preds["one_over_k0"], _gt_data["IonMobility"], atol=0.08)
     mae = np.mean(np.abs(preds["one_over_k0"] - _gt_data["IonMobility"]))
-    print(f"MAE: {mae}")
+    logger.info(f"MAE: {mae}")
     assert closeness
