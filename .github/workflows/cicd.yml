@@ -83,11 +83,11 @@ jobs:
     - name: Build Docker image
       id: dockerbuild
       run: |
-        docker build -t ghcr.io/TalusBio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)") .
+        docker build -t ghcr.io/talusbio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)") .
 
     # Publish Docker
     - name: Push the Docker image to the GHCR
       if: github.event_name == 'push' && ${{ github.ref == 'refs/heads/release' }} && ${{ matrix.python-version == '3.10' }}
       id: ghcr_push
       run: |
-          docker push ghcr.io/TalusBio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)")
+          docker push ghcr.io/talusbio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)")
