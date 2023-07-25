@@ -46,6 +46,8 @@ jobs:
     - name: Codecov
       # You may pin to the exact commit or the version.
       # uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       uses: codecov/codecov-action@v3.1.4
       with:
         # Specify whether the Codecov output should be verbose
