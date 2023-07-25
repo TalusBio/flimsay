@@ -78,7 +78,7 @@ jobs:
     # Quick test on the docker image
     - name: Test Docker image
       run: |
-        docker run -it --rm -v ${PWD}:/data/ \
+        docker run --rm -v ${PWD}:/data/ \
           ghcr.io/talusbio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)") \
           flimsay fill_blib /data/tests/unit_tests/data/test.blib /data/out.blib
 
@@ -134,7 +134,7 @@ jobs:
     # Quick test on the docker image
     - name: Test Docker image
       run: |
-        docker run -it --rm -v ${PWD}:/data/ ghcr.io/talusbio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)") \
+        docker run --rm -v ${PWD}:/data/ ghcr.io/talusbio/flimsay:v$(python -c "import flimsay ; print(flimsay.__version__)") \
           flimsay fill_blib /data/tests/unit_tests/data/test.blib /data/out.blib
 
     # Publish Docker
