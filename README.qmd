@@ -1,6 +1,6 @@
 
 ---
-title: "Flimsy: Fun/Fast Simple IMS Anyone like You can use."
+title: "Flimsay: Fun/Fast Simple IMS Anyone like You can use."
 author: "Sebastian Paez"
 format:
   gfm

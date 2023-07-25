@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
 from .features import FEATURE_COLUMNS, seq_to_features
-
-WEIGHTS_PATH = Path(__file__).parent / "weights"
-DEFAULT_CCS_WEIGHTS_PATH = WEIGHTS_PATH / "ccs_model.txt"
-DEFAULT_OOK0_WEIGHTS_PATH = WEIGHTS_PATH / "one_over_k0_model.txt"
+from .weights import DEFAULT_CCS_WEIGHTS_PATH, DEFAULT_OOK0_WEIGHTS_PATH
 
 
 class FlimsayModel:
