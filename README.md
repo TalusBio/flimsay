@@ -25,16 +25,15 @@ $ flimsay fill_blib mylibrary.blib # This will add ion mobility data to a .blib 
 ! flimsay fill_blib --help
 ```
 
-    Traceback (most recent call last):
-      File "/Users/sebastianpaez/git/ims_predictor/venv/bin/flimsay", line 5, in <module>
-        from flimsay.cli import cli
-      File "/Users/sebastianpaez/git/ims_predictor/venv/lib/python3.10/site-packages/flimsay/cli.py", line 3, in <module>
-        from .blib import fill_blib
-      File "/Users/sebastianpaez/git/ims_predictor/venv/lib/python3.10/site-packages/flimsay/blib.py", line 12, in <module>
-        from .model import FlimsayModel
-      File "/Users/sebastianpaez/git/ims_predictor/venv/lib/python3.10/site-packages/flimsay/model.py", line 8, in <module>
-        from .weights import DEFAULT_CCS_WEIGHTS_PATH, DEFAULT_OOK0_WEIGHTS_PATH
-    ImportError: cannot import name 'DEFAULT_CCS_WEIGHTS_PATH' from 'flimsay.weights' (unknown location)
+
+     Usage: flimsay fill_blib [OPTIONS] BLIB OUT_BLIB
+
+     Add ion mobility prediction to a .blib file.
+
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --overwrite      Whether to overwrite output file, if it exists              │
+    │ --help           Show this message and exit.                                 │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
 
 ### Python
 
@@ -67,7 +66,7 @@ df = add_features(
 df
 ```
 
-    2023-08-04 01:19:27.006 | WARNING  | flimsay.features:add_features:163 - Charge not provided, using default charge of 2
+    2023-08-04 01:23:45.132 | WARNING  | flimsay.features:add_features:163 - Charge not provided, using default charge of 2
 
 <div>
 <style scoped>
@@ -117,7 +116,7 @@ model_instance = FlimsayModel()
 %timeit model_instance.predict_peptide("MYPEPTIDEK", charge=3)
 ```
 
-    123 µs ± 1.14 µs per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
+    122 µs ± 521 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
 
 In my laptop that takes 133 microseconds per peptide, or roughly 7,500
 peptides per second.
@@ -152,7 +151,7 @@ df = add_features(df, stripped_sequence_name="Stripped_Seqs")
 %timeit model_instance.predict(df)
 ```
 
-    6.38 s ± 113 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+    6.39 s ± 152 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
 In my system every million peptides is predicted in 8.86 seconds, that is
 113,000 per second.
