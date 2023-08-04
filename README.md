@@ -67,7 +67,7 @@ df = add_features(
 df
 ```
 
-    2023-07-25 13:55:20.052 | WARNING  | flimsay.features:add_features:163 - Charge not provided, using default charge of 2
+    2023-08-04 01:19:27.006 | WARNING  | flimsay.features:add_features:163 - Charge not provided, using default charge of 2
 
 <div>
 <style scoped>
@@ -117,7 +117,7 @@ model_instance = FlimsayModel()
 %timeit model_instance.predict_peptide("MYPEPTIDEK", charge=3)
 ```
 
-    124 µs ± 3.38 µs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)
+    123 µs ± 1.14 µs per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
 
 In my laptop that takes 133 microseconds per peptide, or roughly 7,500
 peptides per second.
@@ -152,7 +152,7 @@ df = add_features(df, stripped_sequence_name="Stripped_Seqs")
 %timeit model_instance.predict(df)
 ```
 
-    6.78 s ± 395 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+    6.38 s ± 113 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
 In my system every million peptides is predicted in 8.86 seconds, that is
 113,000 per second.
